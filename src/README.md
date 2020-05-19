@@ -17,3 +17,11 @@
 to be released.
 
 ## ResNet50
+
+論文：https://arxiv.org/abs/1512.03385
+
+論文中の Table 1 に記載されている 50-layer のモデルを実装した.
+
+# 結果
+
+to be released.

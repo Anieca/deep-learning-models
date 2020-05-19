@@ -3,7 +3,13 @@ from tensorflow.keras import layers, Model
 
 
 class BottleneckResBlock(Model):
-    """ResNet Bottleneck Block"""
+    """ResNet Bottleneck Block
+    1 層目の 1x1 conv で ch 次元を削減
+    2 層目の 3x3 conv の計算量を減らす
+    3 層目の 1x1 conv で ch 次元を復元
+
+    計算量の多い 2 層目の次元を小することから bottleneck と呼ばれる.
+    """
 
     def __init__(self, in_ch, out_ch, strides=1):
         """
@@ -16,21 +22,26 @@ class BottleneckResBlock(Model):
 
         self.projection = in_ch != out_ch
         inter_ch = out_ch // 4
+        params = {
+            "padding": "same",
+            "kernel_initializer": "he_normal",
+            "use_bias": True,
+        }
 
         self.common_layers = [
-            layers.Conv2D(inter_ch, kernel_size=1, strides=strides, padding="same"),
+            layers.Conv2D(inter_ch, kernel_size=1, strides=strides, **params),
             layers.BatchNormalization(),
             layers.ReLU(),
-            layers.Conv2D(inter_ch, kernel_size=3, strides=1, padding="same"),
+            layers.Conv2D(inter_ch, kernel_size=3, strides=1, **params),
             layers.BatchNormalization(),
             layers.ReLU(),
-            layers.Conv2D(out_ch, kernel_size=1, strides=1, padding="same"),
+            layers.Conv2D(out_ch, kernel_size=1, strides=1, **params),
             layers.BatchNormalization(),
         ]
 
         if self.projection:
             self.projection_layers = [
-                layers.Conv2D(out_ch, kernel_size=1, strides=strides, padding="same"),
+                layers.Conv2D(out_ch, kernel_size=1, strides=strides, **params),
                 layers.BatchNormalization(),
             ]
 
@@ -70,7 +81,16 @@ class BottleneckResBlock(Model):
 
 
 class ResNet50(Model):
-    """ResNet50"""
+    """ResNet50
+    conv * 1
+    resblock(conv * 3) * 3
+    resblock(conv * 3) * 4
+    resblock(conv * 3) * 6
+    resblock(conv * 3) * 3
+    dense * 1
+
+    conv * 49 + dense * 1 の 50 層.
+    """
 
     def __init__(self, output_size=1000):
         """
@@ -100,7 +120,9 @@ class ResNet50(Model):
             BottleneckResBlock(2048, 2048),
             BottleneckResBlock(2048, 2048),
             layers.GlobalAveragePooling2D(),
-            layers.Dense(output_size, activation="softmax"),
+            layers.Dense(
+                output_size, activation="softmax", kernel_initializer="he_normal"
+            ),
         ]
 
     def call(self, inputs):
