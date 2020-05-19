@@ -1,5 +1,3 @@
-# src
-
 ## VGG16
 
 論文：https://arxiv.org/abs/1409.1556
@@ -20,8 +18,10 @@ to be released.
 
 論文：https://arxiv.org/abs/1512.03385
 
+### 説明
+
 論文中の Table 1 に記載されている 50-layer のモデルを実装した.
 
-# 結果
+### 結果
 
 to be released.
