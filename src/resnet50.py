@@ -3,22 +3,22 @@ from tensorflow.keras import layers, Model
 
 
 class BottleneckResBlock(Model):
-    """ResNet Bottleneck Block
-    1 層目の 1x1 conv で ch 次元を削減
-    2 層目の 3x3 conv の計算量を減らす
-    3 層目の 1x1 conv で ch 次元を復元
+    """ResNet の Bottleneck Block です.
+    1 層目の 1x1 conv で ch 次元を削減することで
+    2 層目の 3x3 conv の計算量を減らし
+    3 層目の 1x1 conv で ch 出力の次元を復元します.
 
-    計算量の多い 2 層目の次元を小することから bottleneck と呼ばれる.
+    計算量の多い 2 層目 3x3 conv の次元を小することから bottleneck と呼ばれます.
     """
 
-    def __init__(self, in_ch, out_ch, strides=1):
+    def __init__(self, in_ch, out_ch, strides=1, *args, **kwargs):
         """
         Args:
             in_ch(int): input filters
             out_ch(int): output filters
             strides(int): window stride
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
         self.projection = in_ch != out_ch
         inter_ch = out_ch // 4
@@ -81,23 +81,23 @@ class BottleneckResBlock(Model):
 
 
 class ResNet50(Model):
-    """ResNet50
+    """ResNet50 です.
+    要素は
     conv * 1
     resblock(conv * 3) * 3
     resblock(conv * 3) * 4
     resblock(conv * 3) * 6
     resblock(conv * 3) * 3
     dense * 1
-
-    conv * 49 + dense * 1 の 50 層.
+    から構成されていて, conv * 49 + dense * 1 の 50 層です.
     """
 
-    def __init__(self, output_size=1000):
+    def __init__(self, output_size=1000, *args, **kwargs):
         """
         Args:
             output_size(int): num of class
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
         self._layers = [
             layers.Conv2D(64, 7, 2, padding="same", kernel_initializer="he_normal"),

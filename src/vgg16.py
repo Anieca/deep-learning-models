@@ -3,16 +3,17 @@ from tensorflow.keras import layers, Model
 
 
 class BlockCBR(Model):
-    """Conv-BatchNorm-Relu Block."""
+    """Convolution, Batch Normalization, ReLU の Block です.
+    """
 
-    def __init__(self, filters, kernel_size, strides):
+    def __init__(self, filters, kernel_size, strides, *args, **kwargs):
         """
         Args:
             filters(int): num of filters
             kernel_size(int): filter shape
             strides(int): window stride
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
         params = {
             "filters": filters,
@@ -52,12 +53,15 @@ class BlockCBR(Model):
 
 
 class VGG16(Model):
-    def __init__(self, output_size=1000):
+    """VGG16 です.
+    """
+
+    def __init__(self, output_size=1000, *args, **kwargs):
         """
         Args:
             output_size(int): num of class
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self._layers = [
             BlockCBR(64, 3, 1),
             BlockCBR(64, 3, 1),
