@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, Model
 
 
-class BlockCBR(Model):
+class CBR(Model):
     """Convolution, Batch Normalization, ReLU の Block です.
     """
 
@@ -63,23 +63,23 @@ class VGG16(Model):
         """
         super().__init__(*args, **kwargs)
         self._layers = [
-            BlockCBR(64, 3, 1),
-            BlockCBR(64, 3, 1),
+            CBR(64, 3, 1),
+            CBR(64, 3, 1),
             layers.MaxPool2D(2, padding="same"),
-            BlockCBR(128, 3, 1),
-            BlockCBR(128, 3, 1),
+            CBR(128, 3, 1),
+            CBR(128, 3, 1),
             layers.MaxPool2D(2, padding="same"),
-            BlockCBR(256, 3, 1),
-            BlockCBR(256, 3, 1),
-            BlockCBR(256, 3, 1),
+            CBR(256, 3, 1),
+            CBR(256, 3, 1),
+            CBR(256, 3, 1),
             layers.MaxPool2D(2, padding="same"),
-            BlockCBR(512, 3, 1),
-            BlockCBR(512, 3, 1),
-            BlockCBR(512, 3, 1),
+            CBR(512, 3, 1),
+            CBR(512, 3, 1),
+            CBR(512, 3, 1),
             layers.MaxPool2D(2, padding="same"),
-            BlockCBR(512, 3, 1),
-            BlockCBR(512, 3, 1),
-            BlockCBR(512, 3, 1),
+            CBR(512, 3, 1),
+            CBR(512, 3, 1),
+            CBR(512, 3, 1),
             layers.MaxPool2D(2, padding="same"),
             layers.Flatten(),
             layers.Dense(4096),
