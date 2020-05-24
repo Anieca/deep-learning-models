@@ -46,19 +46,20 @@ def load_model(name, input_shape=None, output_size=10):
         model(Object): tf.keras.Model を継承したオブジェクト
     """
     name = name.lower()
-    if name == "vgg16-s":
+    print(name)
+    if name == "vgg16s":
         model = sequential_vgg16(input_shape, output_size)
-    if name == "vgg16-f":
+    elif name == "vgg16f":
         model = VGG16(output_size)
-    if name == "vgg-16-c":
+    elif name == "vgg16c":
         model = functional_vgg16(input_shape, output_size)
-    elif name == "resnet50-f":
+    elif name == "resnet50f":
         # model = functional_resnet50(input_shape, output_size)
         raise NotImplementedError
-    elif name == "resnet50-c":
+    elif name == "resnet50c":
         model = ResNet50(output_size)
     else:
-        raise KeyError
+        raise KeyError(f"{name}")
     return model
 
 
@@ -67,10 +68,10 @@ def get_args():
     Returns:
         args(argparse.Namespace)
     """
-    models = ["vgg16-s", "vgg16-f", "vgg16-c", "resnet50-f", "resnet50-c"]
+    models = ["vgg16s", "vgg16f", "vgg16c", "resnet50f", "resnet50c"]
     datas = ["mnist", "fashion-mnist", "cifar10", "cifar100"]
     parser = argparse.ArgumentParser()
-    parser.add_argument("--arch", "-a", choices=models, default="VGG16")
+    parser.add_argument("--arch", "-a", choices=models, default="vgg16s")
     parser.add_argument("--data", "-d", choices=datas, default="mnist")
     parser.add_argument("--logdir", "-l", default="./logs")
     parser.add_argument("--batch-size", "-b", type=int, default=10)
