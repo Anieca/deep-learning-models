@@ -50,14 +50,16 @@ def load_model(name, input_shape=None, output_size=10):
     if name == "vgg16s":
         model = sequential_vgg16(input_shape, output_size)
     elif name == "vgg16f":
-        model = VGG16(output_size)
-    elif name == "vgg16c":
         model = functional_vgg16(input_shape, output_size)
+    elif name == "vgg16c":
+        model = VGG16(output_size)
+        model.build_graph(input_shape)
     elif name == "resnet50f":
         # model = functional_resnet50(input_shape, output_size)
         raise NotImplementedError
     elif name == "resnet50c":
         model = ResNet50(output_size)
+        model.build_graph(input_shape)
     else:
         raise KeyError(f"{name}")
     return model
