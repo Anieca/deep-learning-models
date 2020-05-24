@@ -4,16 +4,25 @@ import tensorflow as tf
 from src.utils import load_dataset, load_model, get_args, get_current_time
 
 
-def high_level_api_main(args):
+def builtin_train(args):
     # 1. load dataset and model
     (train_images, train_labels), (test_images, test_labels) = load_dataset(args.data)
-    model = load_model(args.arch, output_size=10)
+    input_shape = train_images[: args.batch_size, :, :, :].shape
+    model = load_model(args.arch, input_shape=input_shape, output_size=10)
+    model.summary()
 
     # 2. set tensorboard cofigs
     logdir = os.path.join(args.logdir, get_current_time())
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
-    # 3. dataset config (and validation, callback config)
+    # 3. loss, optimizer, metrics setting
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"],
+    )
+
+    # 4. dataset config (and validation, callback config)
     fit_params = {}
     fit_params["batch_size"] = args.batch_size
     fit_params["epochs"] = args.max_epoch
@@ -23,40 +32,36 @@ def high_level_api_main(args):
     fit_params["callbacks"] = [tensorboard_callback]
     fit_params["validation_data"] = (test_images, test_labels)
 
-    # 4. loss, optimizer, metrics setting
-    model.compile(
-        optimizer=tf.keras.optimizers.Adam(),
-        loss="sparse_categorical_crossentropy",
-        metrics=["accuracy"],
-    )
     # 5. start train and test
     model.fit(train_images, train_labels, **fit_params)
 
 
-def custom_main(args):
+def custom_train(args):
     # 1. load dataset and model
     (train_images, train_labels), (test_images, test_labels) = load_dataset(args.data)
-    model = load_model(args.arch, 10)
+    input_shape = train_images[: args.batch_size, :, :, :].shape
+    model = load_model(args.arch, input_shape=input_shape, output_size=10)
+    model.summary()
 
     # 2. set tensorboard configs
     logdir = os.path.join(args.logdir, get_current_time())
     train_writer = tf.summary.create_file_writer(os.path.join(logdir, "train"))
     test_writer = tf.summary.create_file_writer(os.path.join(logdir, "test"))
 
-    # 3. dataset config
-    buffer_size = len(train_images)
-    train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-    train_ds = train_ds.shuffle(buffer_size=buffer_size).batch(args.batch_size)
-    test_ds = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
-    test_ds = test_ds.batch(args.batch_size)
-
-    # 4. loss, optimizer, metrics setting
+    # 3. loss, optimizer, metrics setting
     criterion = tf.keras.losses.SparseCategoricalCrossentropy()
     optimizer = tf.keras.optimizers.Adam()
     train_loss_avg = tf.keras.metrics.Mean()
     train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy()
     test_loss_avg = tf.keras.metrics.Mean()
     test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy()
+
+    # 4. dataset config
+    buffer_size = len(train_images)
+    train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
+    train_ds = train_ds.shuffle(buffer_size=buffer_size).batch(args.batch_size)
+    test_ds = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
+    test_ds = test_ds.batch(args.batch_size)
 
     # 5. start train and test
     for epoch in range(args.max_epoch):
@@ -123,5 +128,5 @@ def custom_main(args):
 
 if __name__ == "__main__":
     args = get_args()
-    # high_level_api_main(args)
-    custom_main(args)
+    builtin_train(args)
+    # custom_train(args)
