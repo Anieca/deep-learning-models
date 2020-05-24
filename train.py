@@ -8,7 +8,8 @@ def builtin_train(args):
     # 1. load dataset and model
     (train_images, train_labels), (test_images, test_labels) = load_dataset(args.data)
     input_shape = train_images[: args.batch_size, :, :, :].shape
-    model = load_model(args.arch, input_shape=input_shape, output_size=10)
+    output_size = max(train_labels) + 1
+    model = load_model(args.arch, input_shape=input_shape, output_size=output_size)
     model.summary()
 
     # 2. set tensorboard cofigs
@@ -40,7 +41,8 @@ def custom_train(args):
     # 1. load dataset and model
     (train_images, train_labels), (test_images, test_labels) = load_dataset(args.data)
     input_shape = train_images[: args.batch_size, :, :, :].shape
-    model = load_model(args.arch, input_shape=input_shape, output_size=10)
+    output_size = max(train_labels) + 1
+    model = load_model(args.arch, input_shape=input_shape, output_size=output_size)
     model.summary()
 
     # 2. set tensorboard configs
