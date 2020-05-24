@@ -2,7 +2,7 @@ import argparse
 import tensorflow as tf
 from datetime import datetime
 
-from src.vgg16 import VGG16
+from src.vgg16 import VGG16, sequential_vgg16, functional_vgg16
 from src.resnet50 import ResNet50
 
 
@@ -37,7 +37,7 @@ def load_dataset(name):
     return (train_images, train_labels), (test_images, test_labels)
 
 
-def load_model(name, output_size):
+def load_model(name, input_shape=None, output_size=10):
     """モデルを読み込みます.
     Args:
         name(str):
@@ -46,9 +46,16 @@ def load_model(name, output_size):
         model(Object): tf.keras.Model を継承したオブジェクト
     """
     name = name.lower()
-    if name == "vgg16":
+    if name == "vgg16-s":
+        model = sequential_vgg16(input_shape, output_size)
+    if name == "vgg16-f":
         model = VGG16(output_size)
-    elif name == "resnet50":
+    if name == "vgg-16-c":
+        model = functional_vgg16(input_shape, output_size)
+    elif name == "resnet50-f":
+        # model = functional_resnet50(input_shape, output_size)
+        raise NotImplementedError
+    elif name == "resnet50-c":
         model = ResNet50(output_size)
     else:
         raise KeyError
@@ -60,7 +67,7 @@ def get_args():
     Returns:
         args(argparse.Namespace)
     """
-    models = ["vgg16", "resnet50"]
+    models = ["vgg16-s", "vgg16-f", "vgg16-c", "resnet50-f", "resnet50-c"]
     datas = ["mnist", "fashion-mnist", "cifar10", "cifar100"]
     parser = argparse.ArgumentParser()
     parser.add_argument("--arch", "-a", choices=models, default="VGG16")

@@ -107,3 +107,104 @@ class VGG16(Model):
         self.build(input_shape)
         inputs = tf.keras.Input(shape=input_shape_nobatch)
         self.call(inputs)
+
+
+def sequential_vgg16(input_shape, output_size):
+    params = {
+        "padding": "same",
+        "use_bias": True,
+        "kernel_initializer": "he_normal",
+    }
+    model = tf.keras.Sequential()
+    model.add(layers.Conv2D(64, 3, 1, **params, batch_input_shape=input_shape))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(64, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.MaxPool2D(2, padding="same"))
+    model.add(layers.Conv2D(128, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(128, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.MaxPool2D(2, padding="same"))
+    model.add(layers.Conv2D(256, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(256, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(256, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.MaxPool2D(2, padding="same"))
+    model.add(layers.Conv2D(512, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(512, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(512, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.MaxPool2D(2, padding="same"))
+    model.add(layers.Conv2D(512, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(512, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.Conv2D(512, 3, 1, **params))
+    model.add(layers.BatchNormalization())
+    model.add(layers.ReLU())
+    model.add(layers.MaxPool2D(2, padding="same"))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(4096))
+    model.add(layers.Dense(4096))
+    model.add(layers.Dense(output_size, activation="softmax"))
+    return model
+
+
+def functional_cbr(x, filters, kernel_size, strides):
+    params = {
+        "filters": filters,
+        "kernel_size": kernel_size,
+        "strides": strides,
+        "padding": "same",
+        "use_bias": True,
+        "kernel_initializer": "he_normal",
+    }
+
+    x = layers.Conv2D(**params)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    return x
+
+
+def functional_vgg16(input_shape, output_size):
+    inputs = layers.Input(batch_input_shape=input_shape)
+    x = functional_cbr(inputs, 64, 3, 1)
+    x = functional_cbr(x, 64, 3, 1)
+    x = layers.MaxPool2D(2, padding="same").call(x)
+    x = functional_cbr(x, 128, 3, 1)
+    x = functional_cbr(x, 128, 3, 1)
+    x = layers.MaxPool2D(2, padding="same").__call__(x)
+    x = functional_cbr(x, 256, 3, 1)
+    x = functional_cbr(x, 256, 3, 1)
+    x = functional_cbr(x, 256, 3, 1)
+    x = layers.MaxPool2D(2, padding="same")(x)
+    x = functional_cbr(x, 512, 3, 1)
+    x = functional_cbr(x, 512, 3, 1)
+    x = functional_cbr(x, 512, 3, 1)
+    x = layers.MaxPool2D(2, padding="same")(x)
+    x = functional_cbr(x, 512, 3, 1)
+    x = functional_cbr(x, 512, 3, 1)
+    x = functional_cbr(x, 512, 3, 1)
+    x = layers.MaxPool2D(2, padding="same")(x)
+    x = layers.Flatten()(x)
+    x = layers.Dense(4096)(x)
+    x = layers.Dense(4096)(x)
+    outputs = layers.Dense(output_size, activation="softmax")(x)
+    return Model(inputs=inputs, outputs=outputs)
