@@ -3,7 +3,7 @@ import tensorflow as tf
 from datetime import datetime
 
 from src.vgg16 import VGG16, sequential_vgg16, functional_vgg16
-from src.resnet50 import ResNet50
+from src.resnet50 import ResNet50, ResNet101, functional_resnet50
 
 
 def get_current_time():
@@ -55,10 +55,12 @@ def load_model(name, input_shape=None, output_size=10):
         model = VGG16(output_size)
         model.build_graph(input_shape)
     elif name == "resnet50f":
-        # model = functional_resnet50(input_shape, output_size)
-        raise NotImplementedError
+        model = functional_resnet50(input_shape, output_size)
     elif name == "resnet50c":
         model = ResNet50(output_size)
+        model.build_graph(input_shape)
+    elif name == "resnet101c":
+        model = ResNet101(output_size)
         model.build_graph(input_shape)
     else:
         raise KeyError(f"{name}")
@@ -70,7 +72,7 @@ def get_args():
     Returns:
         args(argparse.Namespace)
     """
-    models = ["vgg16s", "vgg16f", "vgg16c", "resnet50f", "resnet50c"]
+    models = ["vgg16s", "vgg16f", "vgg16c", "resnet50f", "resnet50c", "resnet101c"]
     datas = ["mnist", "fashion-mnist", "cifar10", "cifar100"]
     parser = argparse.ArgumentParser()
     parser.add_argument("--arch", "-a", choices=models, default="vgg16s")
@@ -79,4 +81,5 @@ def get_args():
     parser.add_argument("--batch-size", "-b", type=int, default=10)
     parser.add_argument("--max-epoch", "-e", type=int, default=1)
     parser.add_argument("--steps-per-epoch", type=int, default=None)
+    parser.add_argument("--custom-train", action="store_true")
     return parser.parse_args()

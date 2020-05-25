@@ -130,5 +130,7 @@ def custom_train(args):
 
 if __name__ == "__main__":
     args = get_args()
-    builtin_train(args)
-    # custom_train(args)
+    if args.custom_train:
+        builtin_train(args)
+    else:
+        custom_train(args)
