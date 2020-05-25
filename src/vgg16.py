@@ -24,7 +24,7 @@ class CBR(Model):
             "kernel_initializer": "he_normal",
         }
 
-        self._layers = [
+        self.layers_ = [
             layers.Conv2D(**params),
             layers.BatchNormalization(),
             layers.ReLU(),
@@ -37,7 +37,7 @@ class CBR(Model):
         Returns:
             inputs(tf.Tensor):
         """
-        for layer in self._layers:
+        for layer in self.layers_:
             inputs = layer(inputs)
         return inputs
 
@@ -62,7 +62,7 @@ class VGG16(Model):
             output_size(int): num of class
         """
         super().__init__(*args, **kwargs)
-        self._layers = [
+        self.layers_ = [
             CBR(64, 3, 1),
             CBR(64, 3, 1),
             layers.MaxPool2D(2, padding="same"),
@@ -94,7 +94,7 @@ class VGG16(Model):
         Returns:
             inputs(tf.Tensor):
         """
-        for layer in self._layers:
+        for layer in self.layers_:
             inputs = layer(inputs)
         return inputs
 
