@@ -3,6 +3,8 @@ import tensorflow as tf
 
 from src.utils import load_dataset, load_model, get_args, get_current_time, augment
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 
 def builtin_train(args):
     # 1. load dataset and model
@@ -77,12 +79,13 @@ def custom_train(args):
         test_loss_avg.reset_states()
 
         # 5.2. initialize progress bar
-        train_pbar = tf.keras.utils.Progbar(args.steps_per_epoch)
-        test_pbar = tf.keras.utils.Progbar(args.steps_per_epoch)
+        steps_per_epoch = buffer_size // args.batch_size
+        train_pbar = tf.keras.utils.Progbar(steps_per_epoch)
+        test_pbar = tf.keras.utils.Progbar(steps_per_epoch)
 
         # 5.3. start train
         for i, (x, y_true) in enumerate(train_ds):
-            if args.steps_per_epoch and i >= args.steps_per_epoch:
+            if args.steps_per_epoch and i >= steps_per_epoch:
                 break
             # 5.3.1. forward
             with tf.GradientTape() as tape:
@@ -105,7 +108,7 @@ def custom_train(args):
 
         # 5.4. start test
         for i, (x, y_true) in enumerate(test_ds):
-            if args.steps_per_epoch and i >= args.steps_per_epoch:
+            if args.steps_per_epoch and i >= steps_per_epoch:
                 break
             # 5.4.1. forward
             y_pred = model(x)
