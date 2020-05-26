@@ -62,11 +62,13 @@ def custom_train(args):
 
     # 4. dataset config
     buffer_size = len(train_images)
+    steps_per_epoch = buffer_size // args.batch_size
+
     train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-    train_ds = train_ds.shuffle(buffer_size=buffer_size)
     if args.augmentation:
         train_ds = train_ds.map(augment)
     train_ds = train_ds.batch(args.batch_size)
+
     test_ds = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
     test_ds = test_ds.batch(args.batch_size)
 
@@ -79,7 +81,6 @@ def custom_train(args):
         test_loss_avg.reset_states()
 
         # 5.2. initialize progress bar
-        steps_per_epoch = buffer_size // args.batch_size
         train_pbar = tf.keras.utils.Progbar(steps_per_epoch)
         test_pbar = tf.keras.utils.Progbar(steps_per_epoch)
 
@@ -91,9 +92,11 @@ def custom_train(args):
             with tf.GradientTape() as tape:
                 y_pred = model(x, training=True)
                 loss = criterion(y_true=y_true, y_pred=y_pred)
+
             # 5.3.2. calculate gradients from `tape` and backward
             gradients = tape.gradient(loss, model.trainable_variables)
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+            gradient_param = sum(sum(sum(sum(gradients[0]))))
 
             # 5.3.3. update metrics and progress bar
             train_loss_avg(loss)
@@ -103,6 +106,7 @@ def custom_train(args):
                 [
                     ("avg_loss", train_loss_avg.result()),
                     ("accuracy", train_accuracy.result()),
+                    ("gradient", gradient_param.numpy()),
                 ],
             )
 
