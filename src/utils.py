@@ -2,8 +2,8 @@ import argparse
 import tensorflow as tf
 from datetime import datetime
 
-from src.vgg16 import VGG16, sequential_vgg16, functional_vgg16
-from src.resnet50 import ResNet50, ResNet101, functional_resnet50
+from src.vgg import VGG16, sequential_vgg16, functional_vgg16
+from src.resnet import ResNet50, ResNet101, functional_resnet50
 
 
 def get_current_time():
@@ -82,4 +82,15 @@ def get_args():
     parser.add_argument("--max-epoch", "-e", type=int, default=1)
     parser.add_argument("--steps-per-epoch", type=int, default=None)
     parser.add_argument("--custom-train", action="store_true")
+    parser.add_argument("--augmentation", action="store_true")
     return parser.parse_args()
+
+
+def augment(image, label):
+    height, width, channel = image.shape
+    crop_h = height // 10
+    crop_w = width // 10
+    image = tf.image.resize_with_crop_or_pad(image, height + crop_h, width + crop_w)
+    image = tf.image.random_crop(image, size=[height, width, channel])
+    image = tf.image.random_brightness(image, max_delta=0.5)
+    return image, label

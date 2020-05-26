@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
 
-from src.utils import load_dataset, load_model, get_args, get_current_time
+from src.utils import load_dataset, load_model, get_args, get_current_time, augment
 
 
 def builtin_train(args):
@@ -61,7 +61,10 @@ def custom_train(args):
     # 4. dataset config
     buffer_size = len(train_images)
     train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-    train_ds = train_ds.shuffle(buffer_size=buffer_size).batch(args.batch_size)
+    train_ds = train_ds.shuffle(buffer_size=buffer_size)
+    if args.augmentation:
+        train_ds = train_ds.map(augment)
+    train_ds = train_ds.batch(args.batch_size)
     test_ds = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
     test_ds = test_ds.batch(args.batch_size)
 
@@ -130,7 +133,8 @@ def custom_train(args):
 
 if __name__ == "__main__":
     args = get_args()
+    print(args)
     if args.custom_train:
-        builtin_train(args)
-    else:
         custom_train(args)
+    else:
+        builtin_train(args)
