@@ -67,6 +67,7 @@ def custom_train(args):
     )
 
     train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
+    train_ds = train_ds.shuffle(buffer_size)
     if args.augmentation:
         train_ds = train_ds.map(augment)
     train_ds = train_ds.batch(args.batch_size)
