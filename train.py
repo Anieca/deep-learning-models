@@ -62,7 +62,9 @@ def custom_train(args):
 
     # 4. dataset config
     buffer_size = len(train_images)
-    steps_per_epoch = buffer_size // args.batch_size
+    steps_per_epoch = (
+        args.steps_per_epoch if args.steps_per_epoch else buffer_size // args.batch_size
+    )
 
     train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
     if args.augmentation:
@@ -86,11 +88,11 @@ def custom_train(args):
 
         # 5.3. start train
         for i, (x, y_true) in enumerate(train_ds):
-            if args.steps_per_epoch and i >= steps_per_epoch:
+            if i >= steps_per_epoch:
                 break
             # 5.3.1. forward
             with tf.GradientTape() as tape:
-                y_pred = model(x, training=True)
+                y_pred = model(x)
                 loss = criterion(y_true=y_true, y_pred=y_pred)
 
             # 5.3.2. calculate gradients from `tape` and backward
@@ -112,7 +114,7 @@ def custom_train(args):
 
         # 5.4. start test
         for i, (x, y_true) in enumerate(test_ds):
-            if args.steps_per_epoch and i >= steps_per_epoch:
+            if i >= steps_per_epoch:
                 break
             # 5.4.1. forward
             y_pred = model(x)
