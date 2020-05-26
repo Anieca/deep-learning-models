@@ -1,6 +1,6 @@
 import tensorflow as tf
-from src.resnet50 import BottleneckResidual, ResNet50, ResNet101
-from src.resnet50 import functional_resnet50
+from src.resnet import BottleneckResidual, ResNet50, ResNet101
+from src.resnet import functional_resnet50
 
 
 def test_bottlenect_res_block_not_projection():
@@ -9,9 +9,9 @@ def test_bottlenect_res_block_not_projection():
     output_shape = (10, 224, 224, 256)
 
     model = BottleneckResidual(256, 256)
-    assert model(inputs).shape == output_shape
     model.build_graph(input_shape)
     model.summary()
+    assert model(inputs).shape == output_shape
 
 
 def test_bottlenect_res_block_projection():
@@ -20,9 +20,9 @@ def test_bottlenect_res_block_projection():
     output_shape = (10, 224, 224, 256)
 
     model = BottleneckResidual(64, 256)
-    assert model(inputs).shape == output_shape
     model.build_graph(input_shape)
     model.summary()
+    assert model(inputs).shape == output_shape
 
 
 def test_resnet50():
@@ -32,9 +32,9 @@ def test_resnet50():
     output_shape = (10, output_size)
 
     model = ResNet50(output_size)
-    assert model(inputs).shape == output_shape
     model.build_graph(input_shape)
     model.summary()
+    assert model(inputs).shape == output_shape
 
 
 def test_functional_resnet50():
@@ -54,6 +54,6 @@ def test_resnet101():
     output_shape = (10, output_size)
 
     model = ResNet101(output_size)
-    assert model(inputs).shape == output_shape
     model.build_graph(input_shape)
     model.summary()
+    assert model(inputs).shape == output_shape
