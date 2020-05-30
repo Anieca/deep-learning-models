@@ -108,7 +108,7 @@ def custom_train(args):
 
     # 5. start train and test
     for epoch in range(args.max_epoch):
-        print(f"Epoch {epoch + 1}/{args.max_epoch}")
+        print(f"\nEpoch {epoch + 1}/{args.max_epoch}")
         # 5.1. initialize metrics and progress bar
         train_loss_avg.reset_states()
         train_accuracy.reset_states()
