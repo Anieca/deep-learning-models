@@ -77,7 +77,6 @@ def custom_train(args):
     train_steps_per_epoch = math.ceil(len(train_images) / args.batch_size)
     if args.steps_per_epoch:
         train_steps_per_epoch = min(args.steps_per_epoch, train_steps_per_epoch)
-    test_steps_per_epoch = math.ceil(len(test_images) / args.batch_size)
 
     train_ds = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
     train_ds = train_ds.shuffle(buffer_size)
@@ -109,26 +108,30 @@ def custom_train(args):
 
     # 5. start train and test
     for epoch in range(args.max_epoch):
+        print(f"Epoch {epoch + 1}/{args.max_epoch}")
         # 5.1. initialize metrics and progress bar
         train_loss_avg.reset_states()
         train_accuracy.reset_states()
         test_loss_avg.reset_states()
         test_accuracy.reset_states()
 
-        train_pbar = tf.keras.utils.Progbar(train_steps_per_epoch)
-        test_pbar = tf.keras.utils.Progbar(test_steps_per_epoch)
+        pbar = tf.keras.utils.Progbar(train_steps_per_epoch)
 
         # 5.3. train
         for i, (x, y_true) in enumerate(train_ds):
             if i >= train_steps_per_epoch:
                 break
             loss, acc = train_step(x, y_true)
-            train_pbar.update(i + 1, [("loss", loss), ("accuracy", acc)])
+            pbar.update(i + 1, [("loss", loss), ("accuracy", acc)], finalize=False)
 
         # 5.4. test
-        for i, (x, y_true) in enumerate(test_ds):
+        for x, y_true in test_ds:
             loss, acc = test_step(x, y_true)
-            test_pbar.update(i + 1, [("test_loss", loss), ("test_accuracy", acc)])
+            pbar.update(
+                train_steps_per_epoch,
+                [("test_loss", loss), ("test_accuracy", acc)],
+                finalize=False,
+            )
 
         # 5.5. write metrics to tensorboard
         with train_writer.as_default():
