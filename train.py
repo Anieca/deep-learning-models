@@ -127,11 +127,11 @@ def custom_train(args):
         # 5.4. test
         for x, y_true in test_ds:
             loss, acc = test_step(x, y_true)
-            pbar.update(
-                train_steps_per_epoch,
-                [("test_loss", loss), ("test_accuracy", acc)],
-                finalize=False,
-            )
+        pbar.update(
+            train_steps_per_epoch,
+            [("test_loss", loss), ("test_accuracy", acc)],
+            finalize=True,
+        )
 
         # 5.5. write metrics to tensorboard
         with train_writer.as_default():
